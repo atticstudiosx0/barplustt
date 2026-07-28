@@ -21,51 +21,91 @@ const initialFormData = {
   message: "",
 };
 
+type FormData = typeof initialFormData;
+type FieldErrors = Partial<Record<keyof FormData, string>>;
+
 interface QuoteFormProps {
   onSuccess?: () => void;
 }
 
+const validateEmail = (email: string) => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
 export function QuoteForm({ onSuccess }: QuoteFormProps) {
   const [formData, setFormData] = useState(initialFormData);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [emailError, setEmailError] = useState("");
-
-  const validateEmail = (email: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
 
   const isWedding = formData.eventType === "Wedding";
+
+  const validateField = (name: keyof FormData, value: string, data: FormData): string => {
+    const trimmed = value.trim();
+
+    // Conditional fields: only one of these is shown/required at a time.
+    if (name === "sameVenue" && data.eventType !== "Wedding") return "";
+    if (name === "eventDate" && data.eventType === "Wedding") return "";
+
+    if (!trimmed) return "This field is required";
+
+    if (name === "email" && !validateEmail(trimmed)) {
+      return "Please enter a valid email address";
+    }
+
+    if (name === "guestCount" && Number(trimmed) < 1) {
+      return "Please enter a valid number of guests";
+    }
+
+    return "";
+  };
+
+  const validateAll = (data: FormData): FieldErrors => {
+    const errors: FieldErrors = {};
+    (Object.keys(data) as (keyof FormData)[]).forEach((key) => {
+      const error = validateField(key, data[key], data);
+      if (error) errors[key] = error;
+    });
+    return errors;
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    const nextFormData = {
+    const fieldName = name as keyof FormData;
+
+    const nextFormData: FormData = {
       ...formData,
-      [name]: value,
+      [fieldName]: value,
     };
 
-    if (name === "eventType" && value !== "Wedding") {
+    if (fieldName === "eventType" && value !== "Wedding") {
       nextFormData.sameVenue = "";
     }
 
     setFormData(nextFormData);
 
-    if (name === "email") {
-      if (value && !validateEmail(value)) {
-        setEmailError("Please enter a valid email address");
+    // Live-clear a field's error once it becomes valid.
+    setFieldErrors((prev) => {
+      const next = { ...prev };
+      const error = validateField(fieldName, value, nextFormData);
+      if (error) {
+        next[fieldName] = error;
       } else {
-        setEmailError("");
+        delete next[fieldName];
       }
-    }
+      return next;
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateEmail(formData.email)) {
-      setEmailError("Please enter a valid email address");
+    const errors = validateAll(formData);
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      toast.error("Please fill in all required fields before submitting.");
       return;
     }
 
@@ -75,9 +115,9 @@ export function QuoteForm({ onSuccess }: QuoteFormProps) {
       const success = await sendEmailViaWeb3Forms(formData);
 
       if (success) {
-        toast.success("Your quote request has been received! We'll contact you within 24 hours.");
+        toast.success("Your quote request has been received! We'll contact you soon.");
         setFormData(initialFormData);
-        setEmailError("");
+        setFieldErrors({});
         onSuccess?.();
       } else {
         toast.error("Something went wrong. Please try again.");
@@ -90,8 +130,21 @@ export function QuoteForm({ onSuccess }: QuoteFormProps) {
     }
   };
 
+  // Shared input styling; border turns red when the field has an error.
+  const fieldClass = (field: keyof FormData, extra = "") =>
+    `w-full px-4 py-2.5 bg-black/50 border rounded-lg text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 transition-all ${extra} ${
+      fieldErrors[field]
+        ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+        : "border-gray-800 focus:border-amber-500 focus:ring-amber-500/20"
+    }`;
+
+  const FieldError = ({ field }: { field: keyof FormData }) =>
+    fieldErrors[field] ? (
+      <p className="text-red-500 text-sm mt-1">{fieldErrors[field]}</p>
+    ) : null;
+
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
+    <form onSubmit={handleSubmit} noValidate className="space-y-5">
       <div className="grid md:grid-cols-2 gap-5">
         <div>
           <label htmlFor="name" className="block text-gray-300 mb-2">
@@ -101,12 +154,12 @@ export function QuoteForm({ onSuccess }: QuoteFormProps) {
             type="text"
             id="name"
             name="name"
-            required
             value={formData.name}
             onChange={handleChange}
-            className="w-full px-4 py-2.5 bg-black/50 border border-gray-800 rounded-lg text-white placeholder:text-gray-600 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
+            className={fieldClass("name")}
             placeholder="Full Name"
           />
+          <FieldError field="name" />
         </div>
 
         <div>
@@ -117,17 +170,12 @@ export function QuoteForm({ onSuccess }: QuoteFormProps) {
             type="email"
             id="email"
             name="email"
-            required
             value={formData.email}
             onChange={handleChange}
-            className={`w-full px-4 py-2.5 bg-black/50 border rounded-lg text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 transition-all ${
-              emailError
-                ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
-                : "border-gray-800 focus:border-amber-500 focus:ring-amber-500/20"
-            }`}
+            className={fieldClass("email")}
             placeholder="Email Address"
           />
-          {emailError && <p className="text-red-500 text-sm mt-1">{emailError}</p>}
+          <FieldError field="email" />
         </div>
 
         <div>
@@ -138,12 +186,12 @@ export function QuoteForm({ onSuccess }: QuoteFormProps) {
             type="tel"
             id="phone"
             name="phone"
-            required
             value={formData.phone}
             onChange={handleChange}
-            className="w-full px-4 py-2.5 bg-black/50 border border-gray-800 rounded-lg text-white placeholder:text-gray-600 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
+            className={fieldClass("phone")}
             placeholder="Contact Number"
           />
+          <FieldError field="phone" />
         </div>
 
         <div>
@@ -153,10 +201,9 @@ export function QuoteForm({ onSuccess }: QuoteFormProps) {
           <select
             id="eventType"
             name="eventType"
-            required
             value={formData.eventType}
             onChange={handleChange}
-            className="w-full px-4 py-2.5 bg-black/50 border border-gray-800 rounded-lg text-white focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
+            className={fieldClass("eventType")}
           >
             <option value="">Select event type</option>
             <option value="Wedding">Wedding</option>
@@ -167,6 +214,7 @@ export function QuoteForm({ onSuccess }: QuoteFormProps) {
             <option value="Fete/Party - Cash Bar">Fete/Party - Cash Bar</option>
             <option value="Other">Other</option>
           </select>
+          <FieldError field="eventType" />
         </div>
 
         <div>
@@ -177,12 +225,12 @@ export function QuoteForm({ onSuccess }: QuoteFormProps) {
             type="text"
             id="eventVenue"
             name="eventVenue"
-            required
             value={formData.eventVenue}
             onChange={handleChange}
-            className="w-full px-4 py-2.5 bg-black/50 border border-gray-800 rounded-lg text-white placeholder:text-gray-600 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
+            className={fieldClass("eventVenue")}
             placeholder="Event Venue"
           />
+          <FieldError field="eventVenue" />
         </div>
 
         {!isWedding ? (
@@ -194,11 +242,11 @@ export function QuoteForm({ onSuccess }: QuoteFormProps) {
               type="date"
               id="eventDate"
               name="eventDate"
-              required
               value={formData.eventDate}
               onChange={handleChange}
-              className="w-full px-4 py-2.5 bg-black/50 border border-gray-800 rounded-lg text-white focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
+              className={fieldClass("eventDate", "quote-date-input")}
             />
+            <FieldError field="eventDate" />
           </div>
         ) : (
           <div>
@@ -208,15 +256,15 @@ export function QuoteForm({ onSuccess }: QuoteFormProps) {
             <select
               id="sameVenue"
               name="sameVenue"
-              required={isWedding}
               value={formData.sameVenue}
               onChange={handleChange}
-              className="w-full px-4 py-2.5 bg-black/50 border border-gray-800 rounded-lg text-white focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
+              className={fieldClass("sameVenue")}
             >
               <option value="">Select one</option>
               <option value="Yes">Yes</option>
               <option value="No">No</option>
             </select>
+            <FieldError field="sameVenue" />
           </div>
         )}
 
@@ -228,12 +276,12 @@ export function QuoteForm({ onSuccess }: QuoteFormProps) {
             type="text"
             id="eventTime"
             name="eventTime"
-            required
             value={formData.eventTime}
             onChange={handleChange}
-            className="w-full px-4 py-2.5 bg-black/50 border border-gray-800 rounded-lg text-white placeholder:text-gray-600 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
+            className={fieldClass("eventTime")}
             placeholder="e.g. 6:00 PM - 11:00 PM"
           />
+          <FieldError field="eventTime" />
         </div>
 
         <div>
@@ -244,13 +292,13 @@ export function QuoteForm({ onSuccess }: QuoteFormProps) {
             type="number"
             id="guestCount"
             name="guestCount"
-            required
             value={formData.guestCount}
             onChange={handleChange}
-            className="w-full px-4 py-2.5 bg-black/50 border border-gray-800 rounded-lg text-white placeholder:text-gray-600 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
+            className={fieldClass("guestCount")}
             placeholder="Guest Count"
-            min="1"
+            min="10"
           />
+          <FieldError field="guestCount" />
         </div>
 
         <div>
@@ -260,16 +308,16 @@ export function QuoteForm({ onSuccess }: QuoteFormProps) {
           <select
             id="serviceInterest"
             name="serviceInterest"
-            required
             value={formData.serviceInterest}
             onChange={handleChange}
-            className="w-full px-4 py-2.5 bg-black/50 border border-gray-800 rounded-lg text-white focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
+            className={fieldClass("serviceInterest")}
           >
             <option value="">Select one</option>
             <option value="Full Services">Full Services (drinks, glassware, staff, cocktails, ice etc.)</option>
             <option value="Staff ONLY">Staff ONLY</option>
             <option value="Glassware rental ONLY">Glassware rental ONLY</option>
           </select>
+          <FieldError field="serviceInterest" />
         </div>
 
         <div>
@@ -279,10 +327,9 @@ export function QuoteForm({ onSuccess }: QuoteFormProps) {
           <select
             id="drinkingPreference"
             name="drinkingPreference"
-            required
             value={formData.drinkingPreference}
             onChange={handleChange}
-            className="w-full px-4 py-2.5 bg-black/50 border border-gray-800 rounded-lg text-white focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
+            className={fieldClass("drinkingPreference")}
           >
             <option value="">Select one</option>
             <option value="Light">Light</option>
@@ -290,6 +337,7 @@ export function QuoteForm({ onSuccess }: QuoteFormProps) {
             <option value="Heavy">Heavy</option>
             <option value="Other">Other</option>
           </select>
+          <FieldError field="drinkingPreference" />
         </div>
 
         <div>
@@ -299,16 +347,16 @@ export function QuoteForm({ onSuccess }: QuoteFormProps) {
           <select
             id="cocktailPreference"
             name="cocktailPreference"
-            required
             value={formData.cocktailPreference}
             onChange={handleChange}
-            className="w-full px-4 py-2.5 bg-black/50 border border-gray-800 rounded-lg text-white focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
+            className={fieldClass("cocktailPreference")}
           >
             <option value="">Select one</option>
             <option value="Cocktails">Cocktails</option>
             <option value="Mocktails">Mocktails</option>
             <option value="Both">Both - Cocktails and Mocktails</option>
           </select>
+          <FieldError field="cocktailPreference" />
         </div>
 
         <div>
@@ -319,12 +367,12 @@ export function QuoteForm({ onSuccess }: QuoteFormProps) {
             type="text"
             id="desiredBudget"
             name="desiredBudget"
-            required
             value={formData.desiredBudget}
             onChange={handleChange}
-            className="w-full px-4 py-2.5 bg-black/50 border border-gray-800 rounded-lg text-white placeholder:text-gray-600 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
+            className={fieldClass("desiredBudget")}
             placeholder="Desired Budget"
           />
+          <FieldError field="desiredBudget" />
         </div>
 
         <div className="md:col-span-2">
@@ -334,15 +382,15 @@ export function QuoteForm({ onSuccess }: QuoteFormProps) {
           <select
             id="budgetPriority"
             name="budgetPriority"
-            required
             value={formData.budgetPriority}
             onChange={handleChange}
-            className="w-full px-4 py-2.5 bg-black/50 border border-gray-800 rounded-lg text-white focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
+            className={fieldClass("budgetPriority")}
           >
             <option value="">Select one</option>
             <option value="Maximizing budget">Maximizing budget</option>
             <option value="Premium guest experience">Premium guest experience</option>
           </select>
+          <FieldError field="budgetPriority" />
         </div>
 
         <div className="md:col-span-2">
@@ -353,12 +401,12 @@ export function QuoteForm({ onSuccess }: QuoteFormProps) {
             id="lastingImpression"
             name="lastingImpression"
             rows={3}
-            required
             value={formData.lastingImpression}
             onChange={handleChange}
-            className="w-full px-4 py-2.5 bg-black/50 border border-gray-800 rounded-lg text-white placeholder:text-gray-600 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all resize-none"
+            className={fieldClass("lastingImpression", "resize-none")}
             placeholder="Describe the lasting impression you want to create..."
           />
+          <FieldError field="lastingImpression" />
         </div>
 
         <div className="md:col-span-2">
@@ -369,18 +417,18 @@ export function QuoteForm({ onSuccess }: QuoteFormProps) {
             id="message"
             name="message"
             rows={4}
-            required
             value={formData.message}
             onChange={handleChange}
-            className="w-full px-4 py-2.5 bg-black/50 border border-gray-800 rounded-lg text-white placeholder:text-gray-600 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all resize-none"
+            className={fieldClass("message", "resize-none")}
             placeholder="Tell us about your idea, signature drink, or event vision..."
           />
+          <FieldError field="message" />
         </div>
       </div>
 
       <button
         type="submit"
-        disabled={isSubmitting || !!emailError}
+        disabled={isSubmitting}
         className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-black py-3 rounded-lg hover:from-amber-400 hover:to-amber-500 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-amber-500/50"
       >
         {isSubmitting ? "Sending..." : "Submit Quote Request"}

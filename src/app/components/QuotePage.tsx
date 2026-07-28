@@ -1,5 +1,6 @@
 import { motion } from "motion/react";
 import { QuoteForm } from "./QuoteForm";
+import { Toaster } from "./ui/sonner";
 
 interface QuotePageProps {
   onBack: () => void;
@@ -28,7 +29,7 @@ export function QuotePage({ onBack }: QuotePageProps) {
             Tell us about your event
           </h1>
           <p className="text-gray-400 text-lg md:text-xl max-w-3xl mx-auto">
-            The form is larger and easier to use on its own page. Provide your event details, budget preferences, and desired experience so we can send you a custom quote.
+            Provide your event details, budget preferences, and desired experience so we can send you a custom quote.
           </p>
         </motion.div>
 
@@ -36,6 +37,9 @@ export function QuotePage({ onBack }: QuotePageProps) {
           <QuoteForm />
         </div>
       </div>
+
+      {/* Renders the success/error toasts on the quote page itself */}
+      <Toaster position="top-center" richColors />
     </section>
   );
 }
