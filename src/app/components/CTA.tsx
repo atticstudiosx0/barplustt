@@ -3,10 +3,10 @@ import { motion } from "motion/react";
 import { Mail, Phone, MessageCircle, Instagram, Facebook } from "lucide-react";
 
 interface CTAProps {
-  onOpenQuoteModal?: () => void;
+  onNavigateToQuotePage?: () => void;
 }
 
-export function CTA({ onOpenQuoteModal }: CTAProps) {
+export function CTA({ onNavigateToQuotePage }: CTAProps) {
   const [isVisible, setIsVisible] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
 
@@ -159,7 +159,7 @@ export function CTA({ onOpenQuoteModal }: CTAProps) {
             transition={{ duration: 0.8, delay: 0.7 }}
           >
             <button
-              onClick={onOpenQuoteModal}
+              onClick={onNavigateToQuotePage}
               className="inline-block px-10 py-5 bg-amber-500 text-black rounded-full hover:bg-amber-400 transition-all duration-300 shadow-2xl hover:shadow-amber-500/50 text-lg"
             >
               Request a Quote

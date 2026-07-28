@@ -39,6 +39,12 @@ export function Reviews() {
 
   const reviews: Review[] = [
     {
+      name: "Nikki",
+      event: "Wedding Reception",
+      text: "I just wanted to send a heartfelt THANK YOU to all of the bartenders and floor staff who worked my sister's wedding reception. You were all absolutely wonderful, so kind, professional, attentive, and genuinely lovely to work with from start to finish. The service you provided was truly immaculate. Everything ran so smoothly throughout the evening, and a huge part of that was because of your hard work, communication, and teamwork. You worked seamlessly not only with each other, but also alongside the other vendors, which made the entire event feel effortless and well-coordinated. Both the bride and groom were extremely pleased, and our families were as well. You helped create such a warm, enjoyable, and stress-free atmosphere for everyone, and we are so grateful for all that you did. We would absolutely hire you again for future events without hesitation! Thank you again for helping make such a special day unforgettable.",
+      rating: 5,
+    },
+    {
       name: "Reannah Corbie",
       title: "Arthur Lok Jack Global School of Business",
       text: "Exceptional service from set-up to break-down, pleasant staff who go above and beyond. Highly recommended!",
@@ -146,8 +152,28 @@ export function Reviews() {
             </button>
           </div>
 
+          {/* Dots Indicator */}
+          <div className="flex justify-center gap-2 mt-8 mb-8 relative z-20">
+            {reviews.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => {
+                  setDirection(index > currentIndex ? 1 : -1);
+                  setCurrentIndex(index);
+                }}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  index === currentIndex
+                    ? "bg-amber-500 w-8"
+                    : "bg-amber-500/30 hover:bg-amber-500/50"
+                }`}
+                aria-label={`Go to review ${index + 1}`}
+              />
+            ))}
+          </div>
+        
+
           {/* Carousel */}
-          <div className="relative h-[500px] md:h-[450px] overflow-hidden">
+          <div className="relative min-h-[450px] md:min-h-[500px] overflow-visible">
             <AnimatePresence initial={false} custom={direction}>
               <motion.div
                 key={currentIndex}
@@ -209,8 +235,8 @@ export function Reviews() {
             </AnimatePresence>
           </div>
 
-          {/* Dots Indicator */}
-          <div className="flex justify-center gap-2 mt-8">
+          {/* Dots Indicator
+          <div className="flex justify-center gap-2 mt-12 relative z-20">
             {reviews.map((_, index) => (
               <button
                 key={index}
@@ -226,7 +252,7 @@ export function Reviews() {
                 aria-label={`Go to review ${index + 1}`}
               />
             ))}
-          </div>
+          </div> */}
         </div>
 
         {/* Bottom CTA */}
