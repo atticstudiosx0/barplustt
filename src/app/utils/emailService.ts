@@ -31,10 +31,18 @@ interface EmailData {
   name: string;
   email: string;
   phone: string;
-  company: string;
   eventType: string;
+  eventVenue: string;
+  sameVenue: string;
   eventDate: string;
+  eventTime: string;
   guestCount: string;
+  serviceInterest: string;
+  budgetPriority: string;
+  drinkingPreference: string;
+  lastingImpression: string;
+  cocktailPreference: string;
+  desiredBudget: string;
   message: string;
 }
 
@@ -113,10 +121,18 @@ export async function sendEmailViaWeb3Forms(data: EmailData): Promise<boolean> {
 Name: ${data.name}
 Email: ${data.email}
 Phone: ${data.phone}
-Company/Organisation: ${data.company || "N/A"}
 Event Type: ${data.eventType}
+Event Venue: ${data.eventVenue}
+Same Venue for Ceremony and Reception: ${data.sameVenue}
 Event Date: ${data.eventDate}
+Event Time: ${data.eventTime}
 Expected Guest Count: ${data.guestCount}
+Service Interest: ${data.serviceInterest}
+Budget Priority: ${data.budgetPriority}
+Drinking Preference: ${data.drinkingPreference}
+Cocktail Preference: ${data.cocktailPreference}
+Desired Budget: ${data.desiredBudget}
+What lasting impression would you like to leave?: ${data.lastingImpression}
 
 Additional Details:
 ${data.message || "N/A"}

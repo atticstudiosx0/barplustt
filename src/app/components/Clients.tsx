@@ -8,6 +8,7 @@ import yumaLogo from "figma:asset/a403133dde068f36f4fe0709ce9fbcbc9111225c.png";
 import kairiLogo from "figma:asset/3cf406cca808d838f38b8350d17b3a39ee7cc26a.png";
 import mapleLeafLogo from "figma:asset/2607bfaa1c3a41782f2974217c1b940bd50482f4.png";
 import uwiLogo from "figma:asset/2c603bb0d3ebfc5b4713d6262d20a66ea3d3588a.png";
+import tcjLogo from "../../assets/tcje.png";
 
 export function Clients() {
   const [isVisible, setIsVisible] = useState(false);
@@ -42,6 +43,7 @@ export function Clients() {
     { name: "Kairi People", icon: Building2, image: kairiLogo },
     { name: "Maple Leaf Int. School", icon: GraduationCap, image: mapleLeafLogo },
     { name: "UWI Arthur Lok Jack", icon: GraduationCap, image: uwiLogo },
+    { name: "TCJ Events", icon: Building2, image: tcjLogo },
   ];
 
   return (

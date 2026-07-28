@@ -4,10 +4,12 @@ import { motion, AnimatePresence } from "motion/react";
 import logo from "figma:asset/4f9b2203773a9689c008d651e2f702fd99c3ec55.png";
 
 interface HeaderProps {
-  onOpenQuoteModal?: () => void;
+  activePage: "home" | "quote";
+  onNavigateToHome: () => void;
+  onNavigateToQuotePage?: () => void;
 }
 
-export function Header({ onOpenQuoteModal }: HeaderProps) {
+export function Header({ activePage, onNavigateToHome, onNavigateToQuotePage }: HeaderProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -60,13 +62,20 @@ export function Header({ onOpenQuoteModal }: HeaderProps) {
               <a
                 key={item.name}
                 href={item.href}
+                onClick={(event) => {
+                  if (activePage === "quote") {
+                    event.preventDefault();
+                    onNavigateToHome();
+                    window.location.hash = item.href;
+                  }
+                }}
                 className="text-gray-300 hover:text-amber-500 transition-colors duration-300"
               >
                 {item.name}
               </a>
             ))}
             <button
-              onClick={onOpenQuoteModal}
+              onClick={onNavigateToQuotePage}
               className="px-6 py-2 bg-amber-500 text-black rounded-full hover:bg-amber-400 transition-all duration-300"
             >
               Get Quote
@@ -101,14 +110,19 @@ export function Header({ onOpenQuoteModal }: HeaderProps) {
                     key={item.name}
                     href={item.href}
                     className="text-gray-300 hover:text-amber-500 transition-colors duration-300 py-2"
-                    onClick={() => setIsMobileMenuOpen(false)}
+                    onClick={() => {
+                      if (activePage === "quote") {
+                        onNavigateToHome();
+                      }
+                      setIsMobileMenuOpen(false);
+                    }}
                   >
                     {item.name}
                   </a>
                 ))}
                 <button
                   onClick={() => {
-                    onOpenQuoteModal?.();
+                    onNavigateToQuotePage?.();
                     setIsMobileMenuOpen(false);
                   }}
                   className="px-6 py-3 bg-amber-500 text-black rounded-full hover:bg-amber-400 transition-all duration-300 text-center mt-2"

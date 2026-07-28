@@ -10,17 +10,26 @@ interface QuoteModalProps {
 }
 
 export function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
-  const [formData, setFormData] = useState({
+  const initialFormData = {
     name: "",
     email: "",
     phone: "",
-    company: "",
     eventType: "",
+    eventVenue: "",
+    sameVenue: "",
     eventDate: "",
+    eventTime: "",
     guestCount: "",
+    serviceInterest: "",
+    budgetPriority: "",
+    drinkingPreference: "",
+    lastingImpression: "",
+    cocktailPreference: "",
+    desiredBudget: "",
     message: "",
-  });
+  };
 
+  const [formData, setFormData] = useState(initialFormData);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [emailError, setEmailError] = useState("");
 
@@ -71,40 +80,39 @@ export function QuoteModal({ isOpen, onClose }: QuoteModalProps) {
     
     setIsSubmitting(true);
 
-    // Format the email content
+    // Format the email content for the notification
     const emailBody = `
 New Quote Request from Bar Plus Services Website
 
 Name: ${formData.name}
 Email: ${formData.email}
 Phone: ${formData.phone}
-Company/Organisation: ${formData.company || "N/A"}
 Event Type: ${formData.eventType}
+Event Venue: ${formData.eventVenue}
+Same Venue for Ceremony and Reception: ${formData.sameVenue}
 Event Date: ${formData.eventDate}
+Event Time: ${formData.eventTime}
 Expected Guest Count: ${formData.guestCount}
+Service Interest: ${formData.serviceInterest}
+Budget Priority: ${formData.budgetPriority}
+Drinking Preference: ${formData.drinkingPreference}
+Cocktail Preference: ${formData.cocktailPreference}
+Desired Budget: ${formData.desiredBudget}
+What lasting impression would you like to leave?: ${formData.lastingImpression}
 
 Additional Details:
 ${formData.message || "N/A"}
     `;
 
-try {
-  const success = await sendEmailViaWeb3Forms(formData);
+    try {
+      const success = await sendEmailViaWeb3Forms(formData);
   
-  if (success) {
-    toast.success("Your quote request has been received! We'll contact you within 24 hours.");
-    setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      company: "",
-      eventType: "",
-      eventDate: "",
-      guestCount: "",
-      message: "",
-    });
-    setEmailError("");
-    onClose();
-  } else {
+      if (success) {
+        toast.success("Your quote request has been received! We'll contact you within 24 hours.");
+        setFormData(initialFormData);
+        setEmailError("");
+        onClose();
+      } else {
     toast.error("Something went wrong. Please try again.");
   }
   setIsSubmitting(false);
@@ -208,11 +216,10 @@ try {
                     </div>
                   </div>
 
-                  {/* Phone and Company */}
                   <div className="grid md:grid-cols-2 gap-5">
                     <div>
                       <label htmlFor="phone" className="block text-gray-300 mb-2">
-                        Phone <span className="text-amber-500">*</span>
+                        Contact Number <span className="text-amber-500">*</span>
                       </label>
                       <input
                         type="tel"
@@ -222,31 +229,13 @@ try {
                         value={formData.phone}
                         onChange={handleChange}
                         className="w-full px-4 py-2.5 bg-black/50 border border-gray-800 rounded-lg text-white placeholder:text-gray-600 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
-                        placeholder="Number"
+                        placeholder="Contact Number"
                       />
                     </div>
 
-                    <div>
-                      <label htmlFor="company" className="block text-gray-300 mb-2">
-                        Company/Organisation
-                      </label>
-                      <input
-                        type="text"
-                        id="company"
-                        name="company"
-                        value={formData.company}
-                        onChange={handleChange}
-                        className="w-full px-4 py-2.5 bg-black/50 border border-gray-800 rounded-lg text-white placeholder:text-gray-600 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
-                        placeholder="Company/Organisation"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Event Type and Date */}
-                  <div className="grid md:grid-cols-2 gap-5">
                     <div>
                       <label htmlFor="eventType" className="block text-gray-300 mb-2">
-                        Event Type <span className="text-amber-500">*</span>
+                        What type of event are you planning? <span className="text-amber-500">*</span>
                       </label>
                       <select
                         id="eventType"
@@ -258,16 +247,56 @@ try {
                       >
                         <option value="">Select event type</option>
                         <option value="Wedding">Wedding</option>
-                        <option value="Corporate Event">Corporate Event</option>
-                        <option value="Carnival Fete">Carnival Fete</option>
-                        <option value="Private Party">Private Party</option>
+                        <option value="Birthday Party">Birthday Party</option>
+                        <option value="Graduation">Graduation</option>
+                        <option value="Corporate">Corporate</option>
+                        <option value="Fete/Party - All Inclusive">Fete/Party - All Inclusive</option>
+                        <option value="Fete/Party - Cash Bar">Fete/Party - Cash Bar</option>
                         <option value="Other">Other</option>
                       </select>
                     </div>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-5">
+                    <div>
+                      <label htmlFor="eventVenue" className="block text-gray-300 mb-2">
+                        Event Venue <span className="text-amber-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        id="eventVenue"
+                        name="eventVenue"
+                        required
+                        value={formData.eventVenue}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2.5 bg-black/50 border border-gray-800 rounded-lg text-white placeholder:text-gray-600 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
+                        placeholder="Event Venue"
+                      />
+                    </div>
 
                     <div>
+                      <label htmlFor="sameVenue" className="block text-gray-300 mb-2">
+                        For weddings, will both the ceremony and reception be held at the same venue? <span className="text-amber-500">*</span>
+                      </label>
+                      <select
+                        id="sameVenue"
+                        name="sameVenue"
+                        required
+                        value={formData.sameVenue}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2.5 bg-black/50 border border-gray-800 rounded-lg text-white focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
+                      >
+                        <option value="">Select one</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-5">
+                    <div>
                       <label htmlFor="eventDate" className="block text-gray-300 mb-2">
-                        Event Date <span className="text-amber-500">*</span>
+                        Date of Event? <span className="text-amber-500">*</span>
                       </label>
                       <input
                         type="date"
@@ -279,43 +308,171 @@ try {
                         className="w-full px-4 py-2.5 bg-black/50 border border-gray-800 rounded-lg text-white focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
                       />
                     </div>
+
+                    <div>
+                      <label htmlFor="eventTime" className="block text-gray-300 mb-2">
+                        What time will your event begin and end? <span className="text-amber-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        id="eventTime"
+                        name="eventTime"
+                        required
+                        value={formData.eventTime}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2.5 bg-black/50 border border-gray-800 rounded-lg text-white placeholder:text-gray-600 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
+                        placeholder="e.g. 6:00 PM - 11:00 PM"
+                      />
+                    </div>
                   </div>
 
-                  {/* Guest Count */}
+                  <div className="grid md:grid-cols-2 gap-5">
+                    <div>
+                      <label htmlFor="guestCount" className="block text-gray-300 mb-2">
+                        How many guests are you expecting? <span className="text-amber-500">*</span>
+                      </label>
+                      <input
+                        type="number"
+                        id="guestCount"
+                        name="guestCount"
+                        required
+                        value={formData.guestCount}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2.5 bg-black/50 border border-gray-800 rounded-lg text-white placeholder:text-gray-600 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
+                        placeholder="Guest Count"
+                        min="1"
+                      />
+                    </div>
+
+                    <div>
+                      <label htmlFor="serviceInterest" className="block text-gray-300 mb-2">
+                        Which of our services are you interested in? <span className="text-amber-500">*</span>
+                      </label>
+                      <select
+                        id="serviceInterest"
+                        name="serviceInterest"
+                        required
+                        value={formData.serviceInterest}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2.5 bg-black/50 border border-gray-800 rounded-lg text-white focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
+                      >
+                        <option value="">Select one</option>
+                        <option value="Full Services">Full Services (drinks, glassware, staff, cocktails, ice etc.)</option>
+                        <option value="Staff ONLY">Staff ONLY</option>
+                        <option value="Glassware rental ONLY">Glassware rental ONLY</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-5">
+                    <div>
+                      <label htmlFor="budgetPriority" className="block text-gray-300 mb-2">
+                        Which is more important to you: maximizing budget or delivering a premium guest experience? <span className="text-amber-500">*</span>
+                      </label>
+                      <select
+                        id="budgetPriority"
+                        name="budgetPriority"
+                        required
+                        value={formData.budgetPriority}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2.5 bg-black/50 border border-gray-800 rounded-lg text-white focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
+                      >
+                        <option value="">Select one</option>
+                        <option value="Maximizing budget">Maximizing budget</option>
+                        <option value="Premium guest experience">Premium guest experience</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label htmlFor="drinkingPreference" className="block text-gray-300 mb-2">
+                        How would you describe your guests' drinking preferences? <span className="text-amber-500">*</span>
+                      </label>
+                      <select
+                        id="drinkingPreference"
+                        name="drinkingPreference"
+                        required
+                        value={formData.drinkingPreference}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2.5 bg-black/50 border border-gray-800 rounded-lg text-white focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
+                      >
+                        <option value="">Select one</option>
+                        <option value="Light">Light</option>
+                        <option value="Moderate">Moderate</option>
+                        <option value="Heavy">Heavy</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-5">
+                    <div>
+                      <label htmlFor="cocktailPreference" className="block text-gray-300 mb-2">
+                        Would you like cocktails, mocktails, or both for your event? <span className="text-amber-500">*</span>
+                      </label>
+                      <select
+                        id="cocktailPreference"
+                        name="cocktailPreference"
+                        required
+                        value={formData.cocktailPreference}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2.5 bg-black/50 border border-gray-800 rounded-lg text-white focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
+                      >
+                        <option value="">Select one</option>
+                        <option value="Cocktails">Cocktails</option>
+                        <option value="Mocktails">Mocktails</option>
+                        <option value="Both">Both - Cocktails and Mocktails</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label htmlFor="desiredBudget" className="block text-gray-300 mb-2">
+                        What is your desired budget? <span className="text-amber-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        id="desiredBudget"
+                        name="desiredBudget"
+                        required
+                        value={formData.desiredBudget}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2.5 bg-black/50 border border-gray-800 rounded-lg text-white placeholder:text-gray-600 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
+                        placeholder="Desired Budget"
+                      />
+                    </div>
+                  </div>
+
                   <div>
-                    <label htmlFor="guestCount" className="block text-gray-300 mb-2">
-                      Expected Guest Count <span className="text-amber-500">*</span>
+                    <label htmlFor="lastingImpression" className="block text-gray-300 mb-2">
+                      What lasting impression would you like your event to leave on your guests? <span className="text-amber-500">*</span>
                     </label>
-                    <input
-                      type="number"
-                      id="guestCount"
-                      name="guestCount"
+                    <textarea
+                      id="lastingImpression"
+                      name="lastingImpression"
+                      rows={3}
                       required
-                      value={formData.guestCount}
+                      value={formData.lastingImpression}
                       onChange={handleChange}
-                      className="w-full px-4 py-2.5 bg-black/50 border border-gray-800 rounded-lg text-white placeholder:text-gray-600 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all"
-                      placeholder="Expected Guest Count"
-                      min="1"
+                      className="w-full px-4 py-2.5 bg-black/50 border border-gray-800 rounded-lg text-white placeholder:text-gray-600 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all resize-none"
+                      placeholder="Describe the lasting impression you want to create..."
                     />
                   </div>
 
-                  {/* Message */}
                   <div>
                     <label htmlFor="message" className="block text-gray-300 mb-2">
-                      Additional Details
+                      Have something special in mind? We'd love to hear your ideas. <span className="text-amber-500">*</span>
                     </label>
                     <textarea
                       id="message"
                       name="message"
-                      rows={3}
+                      rows={4}
+                      required
                       value={formData.message}
                       onChange={handleChange}
                       className="w-full px-4 py-2.5 bg-black/50 border border-gray-800 rounded-lg text-white placeholder:text-gray-600 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all resize-none"
-                      placeholder="Tell us more about your event..."
+                      placeholder="Tell us about your idea, signature drink, or event vision..."
                     />
                   </div>
 
-                  {/* Submit Button */}
                   <button
                     type="submit"
                     disabled={isSubmitting || !!emailError}
