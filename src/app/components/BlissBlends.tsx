@@ -44,7 +44,7 @@ export function BlissBlends() {
 
   const cocktails: Cocktail[] = [
     {
-      name: "Margarita",
+      name: "Mango Margarita",
       image: margaritaImage,
       price350: 100,
       price750: 250,
@@ -63,7 +63,7 @@ export function BlissBlends() {
     //   price750: 185,
     // },
     {
-      name: "Mojito",
+      name: "Strawberry Mojito",
       image: mojitoImage,
       price350: 100,
       price750: 250,
