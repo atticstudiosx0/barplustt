@@ -91,7 +91,7 @@ export function BlissBlends() {
       price750: 250,
     },
     {
-      name: "Martini",
+      name: "Espresso Martini",
       image: martiniImage,
       price350: 100,
       price750: 250,
