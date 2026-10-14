@@ -2,12 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import { ImageWithFallback } from "./figma/ImageWithFallback";
 import { Sparkles, Wine, DollarSign } from "lucide-react";
-import mojitoImage from "figma:asset/0eb2301830d5cd3a026d04c350dfe636dd7594bd.png";
-import longIslandImage from "figma:asset/a757e4bf836b7a6e046bc5e326eeee151afbd472.png";
-import blueHawaiianImage from "figma:asset/0299d72d8e88aced5d4717f732c9f31f8e3a6aa6.png";
-import mangoMargaritaImage from "figma:asset/3b799f406c7ef72459c34e5942dd338298bb4c17.png";
-import amarettoSourImage from "figma:asset/895444f3b944cee3d81598ca9c14023159c13f36.png";
-import strawberryMojitoImage from "figma:asset/ec55fe09d58b6cc31b3be64993d2e10475e01520.png";
+import mojitoImage from "../../assets/mojito1.jpeg";
+import martiniImage from "../../assets/martini1.jpeg";
+import blueHawaiianImage from "../../assets/blue_hawaiian1.jpeg";
+import margaritaImage from "../../assets/margarita1.jpeg";
+import amarettoSourImage from "../../assets/amaretto_sour1.jpeg";
+//import strawberryMojitoImage from "figma:asset/ec55fe09d58b6cc31b3be64993d2e10475e01520.png";
 
 interface Cocktail {
   name: string;
@@ -44,64 +44,64 @@ export function BlissBlends() {
 
   const cocktails: Cocktail[] = [
     {
-      name: "Mango Margarita",
-      image: mangoMargaritaImage,
-      price350: 75,
-      price750: 185,
+      name: "Margarita",
+      image: margaritaImage,
+      price350: 100,
+      price750: 250,
     },
     {
       name: "Blue Hawaiian",
       image: blueHawaiianImage,
-      price350: 75,
-      price750: 185,
+      price350: 100,
+      price750: 250,
     },
-    {
-      name: "Triple Berry Caipirinha",
-      image:
-        "https://images.unsplash.com/photo-1725790803859-edc661663bb4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxiZXJyeSUyMGNhaXBpcmluaGElMjBjb2NrdGFpbHxlbnwxfHx8fDE3NjAxMzMxMzR8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-      price350: 75,
-      price750: 185,
-    },
+    // {
+    //   name: "Triple Berry Caipirinha",
+    //   image:
+    //     "https://images.unsplash.com/photo-1725790803859-edc661663bb4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxiZXJyeSUyMGNhaXBpcmluaGElMjBjb2NrdGFpbHxlbnwxfHx8fDE3NjAxMzMxMzR8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
+    //   price350: 75,
+    //   price750: 185,
+    // },
     {
       name: "Mojito",
       image: mojitoImage,
-      price350: 75,
-      price750: 185,
+      price350: 100,
+      price750: 250,
     },
-    {
-      name: "Sorrel Daiquiri",
-      image:
-        "https://images.unsplash.com/photo-1630823184409-1c6014968038?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzb3JyZWwlMjBoaWJpc2N1cyUyMGRyaW5rfGVufDF8fHx8MTc2MDEzMzEzNnww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-      price350: 75,
-      price750: 185,
-      isChristmas: true,
-    },
-    {
-      name: "Coquito",
-      image:
-        "https://images.unsplash.com/photo-1708195992982-68e5420e089e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb3F1aXRvJTIwY29jb251dCUyMGRyaW5rfGVufDF8fHx8MTc2MDEzMzEzNnww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-      price350: 75,
-      price750: 185,
-      isChristmas: true,
-    },
+    // {
+    //   name: "Sorrel Daiquiri",
+    //   image:
+    //     "https://images.unsplash.com/photo-1630823184409-1c6014968038?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzb3JyZWwlMjBoaWJpc2N1cyUyMGRyaW5rfGVufDF8fHx8MTc2MDEzMzEzNnww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
+    //   price350: 75,
+    //   price750: 185,
+    //   isChristmas: true,
+    // },
+    // {
+    //   name: "Coquito",
+    //   image:
+    //     "https://images.unsplash.com/photo-1708195992982-68e5420e089e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb3F1aXRvJTIwY29jb251dCUyMGRyaW5rfGVufDF8fHx8MTc2MDEzMzEzNnww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
+    //   price350: 75,
+    //   price750: 185,
+    //   isChristmas: true,
+    // },
     {
       name: "Amaretto Sour",
       image: amarettoSourImage,
-      price350: 90,
-      price750: 225,
+      price350: 100,
+      price750: 250,
     },
     {
-      name: "Long Island Iced Tea",
-      image: longIslandImage,
-      price350: 90,
-      price750: 225,
+      name: "Martini",
+      image: martiniImage,
+      price350: 100,
+      price750: 250,
     },
-    {
-      name: "Strawberry Mojito",
-      image: strawberryMojitoImage,
-      price350: 90,
-      price750: 225,
-    },
+    // {
+    //   name: "Strawberry Mojito",
+    //   image: strawberryMojitoImage,
+    //   price350: 90,
+    //   price750: 225,
+    // },
   ];
 
   return (
@@ -168,11 +168,11 @@ export function BlissBlends() {
         </motion.div>
 
         {/* Cocktails Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+        <div className="flex flex-wrap justify-center gap-8 max-w-7xl mx-auto">
           {cocktails.map((cocktail, index) => (
             <motion.div
               key={index}
-              className="group relative"
+              className="group relative w-full md:w-[calc(50%-1rem)] lg:w-[calc(33.333%-1.334rem)]"
               initial={{ opacity: 0, y: 40 }}
               animate={isVisible ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.6, delay: index * 0.1 }}
